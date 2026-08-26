@@ -1,0 +1,23 @@
+PyInstaLive / Instagram live recorder patch - 2026-08-22
+
+Cause:
+Instagram currently returns HTTP 400 from /api/v1/users/web_profile_info/
+for some professional/business accounts with:
+Asset asset://laser.provider/ig_business_category_subvertical has been deleted.
+You cannot use this schema
+
+Changes:
+1. api.py
+   - get_user_info() now tries /api/v1/feed/user/<username>/username/?count=1 first.
+   - Extracts the user object and returns it in the old {"data":{"user":...}} shape.
+   - Falls back to web_profile_info for unusual responses.
+
+2. constants.py
+   - Added USER_FEED_BY_USERNAME.
+
+3. NodeInstaRequests.js
+   - getUsernameInfo() now tries feed/user/<username>/username/?count=1 first.
+   - Preserves the old return shape.
+   - Falls back to web_profile_info if the username feed cannot provide a user object.
+
+This is an API compatibility workaround. It does not fix an Instagram server-side schema problem itself.
