@@ -147,20 +147,7 @@ export default class LiveVideoRecorder extends EventTarget {
     this.firstSegment = +videoSegment.getElementsByTagName('S')[0].getAttribute('t')
     
 
-    const audioElement = mpdXml.getElementById('dash-lp-hd-a') || mpdXml.getElementById('live-hd-a')
-    if (audioElement == null) {
-      return {
-        status: 'fail',
-        message: 'Audio element is null',
-      }
-    }
-    const audioSegment = audioElement.getElementsByTagName('SegmentTemplate')[0]
-    if (audioSegment == null) {
-      return {
-        status: 'fail',
-        message: 'Audio SegmentTemplate is null',
-      }
-    }
+    const audioSegment = mpdXml.getElementById('dash-lp-hd-a').getElementsByTagName('SegmentTemplate')[0]
     const audioInitUrl = audioSegment.getAttribute('initialization')
     const audioUrl = audioSegment.getAttribute('media')
 
@@ -204,13 +191,11 @@ export default class LiveVideoRecorder extends EventTarget {
     }
 
     this.userId = userId
-    const streamInfoResult = await this.requests.getStreamInfo(this.userId)
-    const { ok: stremInfoRequestOk, json: streamInfo } = streamInfoResult
+    const { ok: stremInfoRequestOk, json: streamInfo } = await this.requests.getStreamInfo(this.userId)
     if (!stremInfoRequestOk) {
-      const reason = streamInfoResult.error || 'No active livestream'
       return { 
         status: 'fail',
-        message: `Can't get stream info: ${reason}`,
+        message: `Can't get stream info`,
       }
     }
     
